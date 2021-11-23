@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Admin, Resource } from "react-admin";
+import UserList from "./components/Posts/UserLlist";
+import { UserEdit } from "./components/Posts/UserEdit";
+import buildGraphQLProvider from "ra-data-graphql-simple";
+import UserCreate from "./components/Posts/UserCreate";
+import MoviesList from "./components/Movies/MoviesList";
 
 function App() {
+  const [dataProvider, setDataProvider] = React.useState(null);
+
+  React.useEffect(() => {
+    buildGraphQLProvider({
+      clientOptions: { uri: "http://localhost:3000/graphql" },
+    }).then((graphQlDataProvider) =>
+      setDataProvider(() => graphQlDataProvider)
+    );
+  }, []);
+
+  if (!dataProvider) {
+    return <div>Идет загрузка</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Admin dataProvider={dataProvider}>
+      <Resource
+        name="User"
+        options={{ label: "users" }}
+        list={UserList}
+        edit={UserEdit}
+        create={UserCreate}
+      />
+      <Resource
+          name="Movie"
+          options={{ label: "movie" }}
+          list={MoviesList}
+      />
+    </Admin>
   );
 }
 
